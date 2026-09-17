@@ -110,11 +110,17 @@ async fn main() {
         if is_key_down(KeyCode::Right) {
             engine.rotation -= 2.0;
         }
-        if is_key_down(KeyCode::Up) {
+        if is_key_down(KeyCode::W) {
             engine.position += rot_to_vec(engine.rotation) / 10.0;
         }
-        if is_key_down(KeyCode::Down) {
+        if is_key_down(KeyCode::A) {
+            engine.position += rot_to_vec(engine.rotation + 90.0) / 10.0;
+        }
+        if is_key_down(KeyCode::S) {
             engine.position -= rot_to_vec(engine.rotation) / 10.0;
+        }
+        if is_key_down(KeyCode::D) {
+            engine.position += rot_to_vec(engine.rotation - 90.0) / 10.0;
         }
         clear_background(BLACK);
         engine.draw_walls();
