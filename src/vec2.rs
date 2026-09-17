@@ -17,17 +17,15 @@ impl Vec2 {
     }
 
     pub fn rotate(&mut self, angle: f32) {
-        let rad = angle.to_radians();
-        self.x = self.x * rad.cos() - self.y * rad.sin();
-        self.y = self.x * rad.sin() + self.y * rad.cos();
+        self.x = self.x * angle.cos() - self.y * angle.sin();
+        self.y = self.x * angle.sin() + self.y * angle.cos();
     }
 }
 
 pub fn rot_to_vec(degree: f32) -> Vec2 {
-    let rad = degree.to_radians();
     Vec2 {
-        x: rad.cos(),
-        y: rad.sin(),
+        x: degree.cos(),
+        y: degree.sin(),
     }
 }
 

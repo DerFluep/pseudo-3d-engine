@@ -30,11 +30,10 @@ pub fn intersection_distance(origin: &Vec2, vector: &Vec2, line: &Line) -> f32 {
     let t = ((point1_x - origin_x) * dy - (point1_y - origin_y) * dx) / denom;
     let s = ((point1_x - origin_x) * vector_y - (point1_y - origin_y) * vector_x) / denom;
 
-    let mut distance = f32::MAX;
     if t >= 0.0 && (0.0..=1.0).contains(&s) {
-        distance = t;
+        return t;
     }
-    distance
+    f32::MAX
 }
 
 pub struct Line {
@@ -53,19 +52,20 @@ impl Engine {
     pub fn new(walls: Vec<Line>) -> Self {
         Engine {
             position: Vec2::new(0.0, 0.0),
-            rotation: 0.0,
-            fov: 90.0,
+            rotation: 90.0_f32.to_radians(),
+            fov: 90.0_f32.to_radians(),
             walls,
         }
     }
 
     pub fn draw_walls(&self) {
         let pixel_off = self.fov / screen_width();
-        let first_deg = (self.fov / 2.0) + self.rotation;
+        let first_deg = self.fov / 2.0;
         let pixels = screen_width();
         let height_middle = screen_height() / 2.0;
         for pixel in 0..pixels as i32 {
-            let direction = rot_to_vec(first_deg - pixel as f32 * pixel_off);
+            let angle = first_deg - pixel as f32 * pixel_off;
+            let direction = rot_to_vec(angle + self.rotation);
 
             let mut min_dist = f32::MAX;
             self.walls.iter().for_each(|wall| {
@@ -75,8 +75,10 @@ impl Engine {
                 }
             });
 
+            // FIXME: still some distortion in the wall height
             if min_dist < f32::MAX {
-                let line_height = screen_height() / min_dist;
+                let dist_corrected = min_dist * angle.cos();
+                let line_height = screen_height() / dist_corrected;
                 draw_line(
                     pixel as f32,
                     height_middle - line_height / 2.0,
@@ -102,25 +104,30 @@ async fn main() {
     });
 
     let mut engine = Engine::new(walls);
+    let ninty_deg_rad = 90.0_f32.to_radians();
+    let rotation_change = 2.0_f32.to_radians();
 
     'running: loop {
+        if is_key_pressed(KeyCode::Escape) {
+            break 'running;
+        }
         if is_key_down(KeyCode::Left) {
-            engine.rotation += 2.0;
+            engine.rotation += rotation_change;
         }
         if is_key_down(KeyCode::Right) {
-            engine.rotation -= 2.0;
+            engine.rotation -= rotation_change;
         }
         if is_key_down(KeyCode::W) {
             engine.position += rot_to_vec(engine.rotation) / 10.0;
         }
         if is_key_down(KeyCode::A) {
-            engine.position += rot_to_vec(engine.rotation + 90.0) / 10.0;
+            engine.position += rot_to_vec(engine.rotation + ninty_deg_rad) / 10.0;
         }
         if is_key_down(KeyCode::S) {
             engine.position -= rot_to_vec(engine.rotation) / 10.0;
         }
         if is_key_down(KeyCode::D) {
-            engine.position += rot_to_vec(engine.rotation - 90.0) / 10.0;
+            engine.position += rot_to_vec(engine.rotation - ninty_deg_rad) / 10.0;
         }
         clear_background(BLACK);
         engine.draw_walls();
