@@ -1,14 +1,11 @@
 mod vec2;
 
 use core::f32;
-use std::f32::consts::PI;
 
 use macroquad::prelude::*;
 use vec2::Vec2;
 
-pub fn degree_to_radians(degree: f32) -> f32 {
-    degree * PI / 180.0
-}
+use crate::vec2::rot_to_vec;
 
 pub fn intersection_distance(origin: &Vec2, vector: &Vec2, line: &Line) -> f32 {
     let origin_x = origin.x;
@@ -63,14 +60,12 @@ impl Engine {
     }
 
     pub fn draw_walls(&self) {
-        let pixel_width = screen_width();
+        let pixel_off = self.fov / screen_width();
+        let first_deg = (self.fov / 2.0) + self.rotation;
+        let pixels = screen_width();
         let height_middle = screen_height() / 2.0;
-        for pixel in 0..pixel_width as i32 {
-            let mut direction = Vec2::new(
-                (pixel as f32 - pixel_width / 2.0) / (pixel_width / 2.0),
-                1.0,
-            );
-            direction.rotate(degree_to_radians(self.rotation));
+        for pixel in 0..pixels as i32 {
+            let direction = rot_to_vec(first_deg - pixel as f32 * pixel_off);
 
             let mut min_dist = f32::MAX;
             self.walls.iter().for_each(|wall| {
@@ -109,17 +104,17 @@ async fn main() {
     let mut engine = Engine::new(walls);
 
     'running: loop {
-        if is_key_pressed(KeyCode::Left) {
-            engine.rotation += 5.0;
+        if is_key_down(KeyCode::Left) {
+            engine.rotation += 2.0;
         }
-        if is_key_pressed(KeyCode::Right) {
-            engine.rotation -= 5.0;
+        if is_key_down(KeyCode::Right) {
+            engine.rotation -= 2.0;
         }
-        if is_key_pressed(KeyCode::Up) {
-            engine.position.y += 1.0;
+        if is_key_down(KeyCode::Up) {
+            engine.position += rot_to_vec(engine.rotation) / 10.0;
         }
-        if is_key_pressed(KeyCode::Down) {
-            engine.position.y -= 1.0;
+        if is_key_down(KeyCode::Down) {
+            engine.position -= rot_to_vec(engine.rotation) / 10.0;
         }
         clear_background(BLACK);
         engine.draw_walls();

@@ -17,8 +17,17 @@ impl Vec2 {
     }
 
     pub fn rotate(&mut self, angle: f32) {
-        self.x = self.x * angle.cos() - self.y * angle.sin();
-        self.y = self.x * angle.sin() + self.y * angle.cos();
+        let rad = angle.to_radians();
+        self.x = self.x * rad.cos() - self.y * rad.sin();
+        self.y = self.x * rad.sin() + self.y * rad.cos();
+    }
+}
+
+pub fn rot_to_vec(degree: f32) -> Vec2 {
+    let rad = degree.to_radians();
+    Vec2 {
+        x: rad.cos(),
+        y: rad.sin(),
     }
 }
 
@@ -73,6 +82,15 @@ impl std::ops::Sub for Vec2 {
 
     fn sub(self, other: Self) -> Self {
         Self {
+            x: self.x - other.x,
+            y: self.y - other.y,
+        }
+    }
+}
+
+impl std::ops::SubAssign for Vec2 {
+    fn sub_assign(&mut self, other: Self) {
+        *self = Self {
             x: self.x - other.x,
             y: self.y - other.y,
         }
