@@ -1,13 +1,13 @@
-mod vec2;
-
 use core::f32;
 
 use macroquad::prelude::*;
 use vec2::Vec2;
 
-use crate::vec2::rot_to_vec;
+fn rot_to_vec(radians: f32) -> Vec2<f32> {
+    Vec2::new(radians.cos(), radians.sin())
+}
 
-pub fn intersection_distance(origin: &Vec2, vector: &Vec2, line: &Line) -> f32 {
+pub fn intersection_distance(origin: &Vec2<f32>, vector: &Vec2<f32>, line: &Line) -> f32 {
     let origin_x = origin.x;
     let origin_y = origin.y;
     let vector_x = vector.x;
@@ -37,12 +37,12 @@ pub fn intersection_distance(origin: &Vec2, vector: &Vec2, line: &Line) -> f32 {
 }
 
 pub struct Line {
-    pub start: Vec2,
-    pub end: Vec2,
+    pub start: Vec2<f32>,
+    pub end: Vec2<f32>,
 }
 
 pub struct Engine {
-    pub position: Vec2,
+    pub position: Vec2<f32>,
     pub rotation: f32,
     pub fov: f32,
     pub walls: Vec<Line>,
