@@ -7,28 +7,22 @@ fn rot_to_vec(radians: f32) -> Vec2<f32> {
     Vec2::new(radians.cos(), radians.sin())
 }
 
-pub fn intersection_distance(origin: &Vec2<f32>, vector: &Vec2<f32>, line: &Line) -> f32 {
-    let origin_x = origin.x;
-    let origin_y = origin.y;
-    let vector_x = vector.x;
-    let vector_y = vector.y;
-    let point1_x = line.start.x;
-    let point1_y = line.start.y;
-    let point2_x = line.end.x;
-    let point2_y = line.end.y;
+pub fn intersection_distance(origin: &Vec2<f32>, vector: &mut Vec2<f32>, line: &Line) -> f32 {
+    vector.normalize();
+    // store deltaX and deltaY of the line in a Vec2
+    let line_delta = Vec2::new(line.end.x - line.start.x, line.end.y - line.start.y);
 
-    // Line direction
-    let dx = point2_x - point1_x;
-    let dy = point2_y - point1_y;
+    let cross_product = vector.cross(line_delta);
 
-    let denom = vector_x * dy - vector_y * dx;
+    // Lines are parallel so no rendering of it is possible
+    if cross_product == 0.0 {
+        return f32::MAX;
+    }
 
-    /* if denom == 0.0 {
-        println!("Lines are parallel");
-    } */
-
-    let t = ((point1_x - origin_x) * dy - (point1_y - origin_y) * dx) / denom;
-    let s = ((point1_x - origin_x) * vector_y - (point1_y - origin_y) * vector_x) / denom;
+    let t = ((line.start.x - origin.x) * line_delta.y - (line.start.y - origin.y) * line_delta.x)
+        / cross_product;
+    let s = ((line.start.x - origin.x) * vector.y - (line.start.y - origin.y) * vector.x)
+        / cross_product;
 
     if t >= 0.0 && (0.0..=1.0).contains(&s) {
         return t;
@@ -65,11 +59,11 @@ impl Engine {
         let height_middle = screen_height() / 2.0;
         for pixel in 0..pixels as i32 {
             let angle = first_deg - pixel as f32 * pixel_off;
-            let direction = rot_to_vec(angle + self.rotation);
+            let mut direction = rot_to_vec(angle + self.rotation);
 
             let mut min_dist = f32::MAX;
             self.walls.iter().for_each(|wall| {
-                let distance = intersection_distance(&self.position, &direction, wall);
+                let distance = intersection_distance(&self.position, &mut direction, wall);
                 if distance < min_dist {
                     min_dist = distance;
                 }
