@@ -8,7 +8,6 @@ fn rot_to_vec(radians: f32) -> Vec2<f32> {
 }
 
 pub fn intersection_distance(origin: &Vec2<f32>, vector: &mut Vec2<f32>, line: &Line) -> f32 {
-    vector.normalize();
     // store deltaX and deltaY of the line in a Vec2
     let line_delta = Vec2::new(line.end.x - line.start.x, line.end.y - line.start.y);
 
@@ -46,20 +45,20 @@ impl Engine {
     pub fn new(walls: Vec<Line>) -> Self {
         Engine {
             position: Vec2::new(0.0, 0.0),
-            rotation: 90.0_f32.to_radians(),
-            fov: 90.0_f32.to_radians(),
+            rotation: 0.0,
+            fov: 45.0,
             walls,
         }
     }
 
     pub fn draw_walls(&self) {
-        let pixel_off = self.fov / screen_width();
-        let first_deg = self.fov / 2.0;
         let pixels = screen_width();
         let height_middle = screen_height() / 2.0;
+        let image_plane = 90.0 / self.fov;
+        let pixel_offset = 1.0 / pixels;
         for pixel in 0..pixels as i32 {
-            let angle = first_deg - pixel as f32 * pixel_off;
-            let mut direction = rot_to_vec(angle + self.rotation);
+            let mut direction = Vec2::new(image_plane, 0.5 - pixel as f32 * pixel_offset);
+            direction.rotate(self.rotation);
 
             let mut min_dist = f32::MAX;
             self.walls.iter().for_each(|wall| {
@@ -69,10 +68,8 @@ impl Engine {
                 }
             });
 
-            // FIXME: still some distortion in the wall height
             if min_dist < f32::MAX {
-                let dist_corrected = min_dist * angle.cos();
-                let line_height = screen_height() / dist_corrected;
+                let line_height = screen_height() / min_dist;
                 draw_line(
                     pixel as f32,
                     height_middle - line_height / 2.0,
