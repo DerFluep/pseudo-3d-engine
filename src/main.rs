@@ -70,9 +70,11 @@ impl Engine {
 
             if min_dist < f32::MAX {
                 let line_height = screen_height() / min_dist;
-                let mut lerp = min_dist.clamp(2.0, 10.0);
-                lerp = (lerp - 2.0) / 8.0; // normalize
-                let color = 1.0.lerp(0.1, lerp).powf(2.2);
+                let min_view_dist = 1.0;
+                let max_view_dist = 5.0;
+                let mut lerp = min_dist.clamp(min_view_dist, max_view_dist);
+                lerp = (lerp - min_view_dist) / (max_view_dist - min_view_dist); // normalize
+                let color = 1.0.lerp(0.5, lerp).powf(2.2);
                 draw_line(
                     pixel as f32,
                     height_middle - line_height / 2.0,
