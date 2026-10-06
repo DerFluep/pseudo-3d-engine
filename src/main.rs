@@ -120,7 +120,16 @@ async fn main() {
         if is_key_down(KeyCode::D) {
             engine.position += rot_to_vec(engine.rotation - ninty_deg_rad) / 10.0;
         }
+
         clear_background(BLACK);
+
+        draw_rectangle(
+            0.0,
+            screen_height() / 2.0,
+            screen_width(),
+            screen_height() / 2.0,
+            GRAY,
+        );
         engine.draw_walls();
         next_frame().await
     }
