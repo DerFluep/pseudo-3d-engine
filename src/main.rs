@@ -131,6 +131,7 @@ async fn main() {
 
         clear_background(BLACK);
 
+        // draw floor
         draw_rectangle(
             0.0,
             screen_height() / 2.0,
@@ -138,7 +139,12 @@ async fn main() {
             screen_height() / 2.0,
             GRAY,
         );
+
+        // draw sky
+        draw_rectangle(0.0, 0.0, screen_width(), screen_height() / 2.0, BLUE);
+
         engine.draw_walls();
+
         next_frame().await
     }
 }
