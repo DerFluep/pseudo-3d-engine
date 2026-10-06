@@ -93,7 +93,7 @@ impl Engine {
     }
 }
 
-#[macroquad::main("Gravity Particle Sim")]
+#[macroquad::main("Pseudo 3D Engine")]
 async fn main() {
     let mut walls = vec![Line {
         start: Vec2::new(-2.0, 6.0),
